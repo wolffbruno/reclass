@@ -58,12 +58,6 @@ function App() {
     const [relation] = useState(new Relation());
     const [orderedPair, setOrderedPair] = useState(new OrderedPair());
 
-    useEffect(() => {
-        setInterval(() => {
-            console.log(relation.transitivePairs())
-        }, 2000)
-    }, [])
-
     const addOrderedPair = () => {
         if (orderedPair.x && orderedPair.y) {
             relation.pairs.push(orderedPair);
