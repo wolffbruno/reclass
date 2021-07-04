@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useState, useRef} from 'react';
 
 class OrderedPair {
     x: any;
@@ -59,15 +59,27 @@ class Relation {
     }
 }
 
+function useForceUpdate(){
+    const [value, setValue] = useState(0); // integer state
+    return () => setValue(value => value + 1); // update the state to force render
+}
+
 function App() {
     const [relation] = useState(new Relation());
+    const forceUpdate = useForceUpdate();
     const [inputValue, setInputValue] = useState('');
     const [orderedPair, setOrderedPair] = useState(new OrderedPair());
+    const xInput = useRef<HTMLInputElement>(null);
 
-    const addOrderedPair = () => {
+    const addOrderedPair = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         if (orderedPair.x && orderedPair.y) {
             relation.pairs.push(orderedPair);
             setOrderedPair(new OrderedPair());
+        }
+
+        if (xInput.current) {
+            xInput.current.focus();
         }
     }
 
@@ -87,6 +99,11 @@ function App() {
 
         relation.endoRelation = array.filter(x => x);
         console.log(relation.endoRelation)
+    }
+
+    const removePair = (i: number) => {
+        relation.pairs.splice(i, 1);
+        forceUpdate();
     }
 
     return (
@@ -113,24 +130,24 @@ function App() {
                 </div>
                 <div className="ring-1 ring-gray-200 rounded-sm p-4">
                     Pares
-                    <div className="mt-2 bg-gray-50 ring-2 rounded-sm ring-gray-200 px-4 py-2 text-gray-300 flex gap-4 flex-wrap">
+                    <form onSubmit={(e) => addOrderedPair(e)} className="mt-2 bg-gray-50 ring-2 rounded-sm ring-gray-200 px-4 py-2 text-gray-300 flex gap-4 flex-wrap">
                         <span>(</span>
-                        <input type="text" value={orderedPair.x} onChange={(e) => changeX(e)} className="w-10"
+                        <input ref={xInput} type="text" value={orderedPair.x} onChange={(e) => changeX(e)} className="w-10"
                                placeholder="x"/>
                         <span>,</span>
                         <input type="text" value={orderedPair.y} onChange={(e) => changeY(e)} className="w-10"
                                placeholder="y"/>
                         <span>)</span>
-                        <button onClick={() => addOrderedPair()}
+                        <button type="submit"
                                 className="bg-green-500 rounded-full text-blue-50 px-4 text-sm py-1 hover:bg-green-600 transition-colors">
                             Adicionar par
                         </button>
-                    </div>
+                    </form>
                     <div className="mt-2 flex gap-4 flex-wrap">
                         {
                             relation.pairs.map((pair, i) => {
                                 return (
-                                    <div className="ordered-pair" key={i}>
+                                    <div className="ordered-pair" onClick={() => removePair(i)} key={i}>
                                         ({pair.x}, {pair.y})
                                     </div>
                                 )
