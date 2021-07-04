@@ -79,7 +79,11 @@ function App() {
     return (
         <>
             <div className="w-full p-10 flex flex-col gap-y-6 items-start">
-                <div className="bg-gray-50 ring-2 rounded-sm ring-gray-200 px-4 py-2 text-gray-300">
+                <div>
+                    <h1 className="text-lg font-bold">ReClass</h1>
+                    <span>Classificador de relações</span>
+                </div>
+                <div className="bg-gray-50 ring-2 rounded-sm ring-gray-200 px-4 py-2 text-gray-300 flex gap-4 flex-wrap">
                     <span>(</span>
                     <input type="text" value={orderedPair.x} onChange={(e) => changeX(e)} className="w-10"
                            placeholder="x"/>
@@ -88,13 +92,13 @@ function App() {
                            placeholder="y"/>
                     <span>)</span>
                     <button onClick={() => addOrderedPair()}
-                            className="bg-green-500 rounded-full text-blue-50 px-4 text-sm py-1 ml-10 hover:bg-green-600 transition-colors">
+                            className="bg-green-500 rounded-full text-blue-50 px-4 text-sm py-1 hover:bg-green-600 transition-colors">
                         Adicionar
                     </button>
                 </div>
                 <div>
                     Pontos
-                    <div className="mt-2 flex gap-4">
+                    <div className="mt-2 flex gap-4 flex-wrap">
                         {
                             relation.pairs.map((pair, i) => {
                                 return (
@@ -108,7 +112,7 @@ function App() {
                 </div>
                 <div>
                     Pontos (R<sup>-</sup>)
-                    <div className="mt-2 flex gap-4">
+                    <div className="mt-2 flex gap-4 flex-wrap">
                         {
                             relation.invertedRelation.map((pair, i) => {
                                 return (
@@ -122,11 +126,15 @@ function App() {
                 </div>
                 <div>
                     Classificação
-                    <div className="flex flex-col gap-4 text-gray-400">
-                        {relation.isSimetric && <span>Simétrica</span>}
-                        {relation.isTransitive && <span>Transitiva</span>}
-                        {relation.isAntiSimetric && <span>Anti-simétrica</span>}
-                    </div>
+                    {
+                        relation && relation.pairs && relation.pairs.length > 0 && (
+                            <div className="flex flex-col gap-4 text-gray-400">
+                                {relation.isSimetric && <span>Simétrica</span>}
+                                {relation.isTransitive && <span>Transitiva</span>}
+                                {relation.isAntiSimetric && <span>Anti-simétrica</span>}
+                            </div>
+                        )
+                    }
                 </div>
             </div>
         </>
