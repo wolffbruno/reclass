@@ -68,6 +68,7 @@ function App() {
     const [relation] = useState(new Relation());
     const forceUpdate = useForceUpdate();
     const [inputValue, setInputValue] = useState('');
+    const [inputPairsValue, setInputPairsValue] = useState('');
     const [orderedPair, setOrderedPair] = useState(new OrderedPair());
     const xInput = useRef<HTMLInputElement>(null);
 
@@ -101,9 +102,33 @@ function App() {
         console.log(relation.endoRelation)
     }
 
+    const handlePairsChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const regex = /\(.*?\)/gi;
+        setInputPairsValue(e.target.value)
+
+        const r = e.target.value.matchAll(regex);
+        relation.pairs = [];
+
+        Array.from(r).forEach((e) => {
+            const t = e[0].replace(/[()]/gi, '').split(',').map(x => x.trim());
+            relation.pairs.push(new OrderedPair(t[0], t[1]));
+        })
+    }
+
     const removePair = (i: number) => {
         relation.pairs.splice(i, 1);
         forceUpdate();
+    }
+
+    function cartesianProduct() {
+        if (relation.endoRelation && relation.endoRelation.length > 0) {
+            relation.endoRelation.forEach(end => {
+                relation.endoRelation.forEach(endd => {
+                    relation.pairs.push(new OrderedPair(end, endd));
+                });
+            });
+            forceUpdate();
+        }
     }
 
     return (
@@ -113,7 +138,7 @@ function App() {
                     <h1 className="text-lg font-bold">ReClass</h1>
                     <span className="text-gray-600">Classificador de relações</span>
                 </div>
-                <div className="flex flex-col ring-1 ring-gray-200 rounded-sm p-4">
+                <div className="flex flex-col ring-1 ring-gray-200 rounded-sm p-4 items-start">
                     Conjunto endorrelacionado (separe os elementos por vírgulas)
                     <input value={inputValue} onChange={(e) => handleSetChange(e)} className="p-2 bg-gray-100 text-left mt-1" type="text" placeholder="Elementos"/>
                     <div className="mt-2 flex gap-4 flex-wrap items-center">
@@ -127,9 +152,14 @@ function App() {
                             })
                         }{'}'}
                     </div>
+                    <button onClick={() => cartesianProduct()}
+                            className="bg-blue-500 rounded-full mt-2 text-blue-50 px-4 text-sm py-1 hover:bg-blue-600 transition-colors">
+                        Montar produto cartesiano
+                    </button>
                 </div>
-                <div className="ring-1 ring-gray-200 rounded-sm p-4">
+                <div className="ring-1 ring-gray-200 rounded-sm p-4 flex flex-col items-start">
                     Pares
+                    <input value={inputPairsValue} onChange={(e) => handlePairsChange(e)} className="p-2 bg-gray-100 text-left mt-1" type="text" placeholder="Pares"/>
                     <form onSubmit={(e) => addOrderedPair(e)} className="mt-2 bg-gray-50 ring-2 rounded-sm ring-gray-200 px-4 py-2 text-gray-300 flex gap-4 flex-wrap">
                         <span>(</span>
                         <input ref={xInput} type="text" value={orderedPair.x} onChange={(e) => changeX(e)} className="w-10"
