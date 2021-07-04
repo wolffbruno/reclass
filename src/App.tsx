@@ -12,6 +12,7 @@ class OrderedPair {
 
 class Relation {
     pairs: OrderedPair[] = [];
+    endoRelation: string[] = [];
 
     transitivePairs(): [OrderedPair | null, OrderedPair | null][] {
         const result: [OrderedPair | null, OrderedPair | null][] = [];
@@ -28,6 +29,10 @@ class Relation {
 
     simetricPairs(): [OrderedPair | null, OrderedPair | null][]  {
         return this.pairs.filter(pair => this.pairs.find(x => x.x === pair.y && x.y === pair.x)).map(pair => [pair, this.pairs.find(x => x.x === pair.y && x.y === pair.x) as OrderedPair])
+    }
+
+    get isReflexive(): boolean {
+        return this.endoRelation && this.endoRelation.length > 0 && this.endoRelation.every(e => this.pairs.find(pair => pair.x === e && pair.y === e));
     }
 
     get isSimetric(): boolean {
@@ -56,6 +61,7 @@ class Relation {
 
 function App() {
     const [relation] = useState(new Relation());
+    const [inputValue, setInputValue] = useState('');
     const [orderedPair, setOrderedPair] = useState(new OrderedPair());
 
     const addOrderedPair = () => {
@@ -75,29 +81,51 @@ function App() {
         setOrderedPair(copy);
     }
 
+    const handleSetChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
+        const array = (e.target.value || '').split(',').map(x => x.trim());
+
+        relation.endoRelation = array.filter(x => x);
+        console.log(relation.endoRelation)
+    }
 
     return (
         <>
             <div className="w-full p-10 flex flex-col gap-y-6 items-start">
                 <div>
                     <h1 className="text-lg font-bold">ReClass</h1>
-                    <span>Classificador de relações</span>
+                    <span className="text-gray-600">Classificador de relações</span>
                 </div>
-                <div className="bg-gray-50 ring-2 rounded-sm ring-gray-200 px-4 py-2 text-gray-300 flex gap-4 flex-wrap">
-                    <span>(</span>
-                    <input type="text" value={orderedPair.x} onChange={(e) => changeX(e)} className="w-10"
-                           placeholder="x"/>
-                    <span>,</span>
-                    <input type="text" value={orderedPair.y} onChange={(e) => changeY(e)} className="w-10"
-                           placeholder="y"/>
-                    <span>)</span>
-                    <button onClick={() => addOrderedPair()}
-                            className="bg-green-500 rounded-full text-blue-50 px-4 text-sm py-1 hover:bg-green-600 transition-colors">
-                        Adicionar
-                    </button>
+                <div className="flex flex-col ring-1 ring-gray-200 rounded-sm p-4">
+                    Conjunto endorrelacionado (separe os elementos por vírgulas)
+                    <input value={inputValue} onChange={(e) => handleSetChange(e)} className="p-2 bg-gray-100 text-left mt-1" type="text" placeholder="Elementos"/>
+                    <div className="mt-2 flex gap-4 flex-wrap items-center">
+                        {'{'}{
+                            relation.endoRelation.map((e, i) => {
+                                return (
+                                    <div className="ordered-pair" key={i}>
+                                        {e}
+                                    </div>
+                                )
+                            })
+                        }{'}'}
+                    </div>
                 </div>
-                <div>
-                    Pontos
+                <div className="ring-1 ring-gray-200 rounded-sm p-4">
+                    Pares
+                    <div className="mt-2 bg-gray-50 ring-2 rounded-sm ring-gray-200 px-4 py-2 text-gray-300 flex gap-4 flex-wrap">
+                        <span>(</span>
+                        <input type="text" value={orderedPair.x} onChange={(e) => changeX(e)} className="w-10"
+                               placeholder="x"/>
+                        <span>,</span>
+                        <input type="text" value={orderedPair.y} onChange={(e) => changeY(e)} className="w-10"
+                               placeholder="y"/>
+                        <span>)</span>
+                        <button onClick={() => addOrderedPair()}
+                                className="bg-green-500 rounded-full text-blue-50 px-4 text-sm py-1 hover:bg-green-600 transition-colors">
+                            Adicionar par
+                        </button>
+                    </div>
                     <div className="mt-2 flex gap-4 flex-wrap">
                         {
                             relation.pairs.map((pair, i) => {
@@ -110,8 +138,8 @@ function App() {
                         }
                     </div>
                 </div>
-                <div>
-                    Pontos invertidos (R<sup>-1</sup>)
+                <div className="ring-1 ring-gray-200 rounded-sm p-4">
+                    Pares invertidos (R<sup>-1</sup>)
                     <div className="mt-2 flex gap-4 flex-wrap">
                         {
                             relation.invertedRelation.map((pair, i) => {
@@ -124,14 +152,17 @@ function App() {
                         }
                     </div>
                 </div>
-                <div>
+                <div className="ring-1 ring-gray-200 rounded-sm p-4">
                     Classificação
                     {
                         relation && relation.pairs && relation.pairs.length > 0 && (
-                            <div className="flex flex-col gap-4 text-gray-400">
-                                {relation.isSimetric && <span>Simétrica</span>}
-                                {relation.isTransitive && <span>Transitiva</span>}
-                                {relation.isAntiSimetric && <span>Anti-simétrica</span>}
+                            <div className="flex flex-col gap-4 text-gray-400 ml-10">
+                                <ol className="list-disc">
+                                    {relation.isReflexive && <li>Reflexiva</li>}
+                                    {relation.isSimetric && <li>Simétrica</li>}
+                                    {relation.isTransitive && <li>Transitiva</li>}
+                                    {relation.isAntiSimetric && <li>Anti-simétrica</li>}
+                                </ol>
                             </div>
                         )
                     }
