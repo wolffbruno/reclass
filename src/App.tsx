@@ -111,7 +111,7 @@ function App() {
                     </div>
                 </div>
                 <div>
-                    Pontos (R<sup>-</sup>)
+                    Pontos invertidos (R<sup>-1</sup>)
                     <div className="mt-2 flex gap-4 flex-wrap">
                         {
                             relation.invertedRelation.map((pair, i) => {
