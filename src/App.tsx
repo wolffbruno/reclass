@@ -57,6 +57,10 @@ class Relation {
     get isAntiSimetric(): boolean {
         return this.simetricPairs().every((pair: [OrderedPair | null, OrderedPair | null]) => pair[0]?.x === pair[1]?.x && pair[0]?.y === pair[1]?.y);
     }
+
+    get composition(): OrderedPair[] {
+      return this.transitivePairs().map(t => new OrderedPair(t[0]?.x, t[1]?.y));
+    }
 }
 
 function useForceUpdate(){
@@ -72,7 +76,7 @@ function App() {
     const [orderedPair, setOrderedPair] = useState(new OrderedPair());
     const xInput = useRef<HTMLInputElement>(null);
 
-    const addOrderedPair = (e: React.FormEvent<HTMLFormElement>) => {
+    function addOrderedPair(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (orderedPair.x && orderedPair.y) {
             relation.pairs.push(orderedPair);
@@ -94,7 +98,7 @@ function App() {
         setOrderedPair(copy);
     }
 
-    const handleSetChange = (e: ChangeEvent<HTMLInputElement>) => {
+    function handleSetChange(e: ChangeEvent<HTMLInputElement>) {
         setInputValue(e.target.value);
         const array = (e.target.value || '').split(',').map(x => x.trim());
 
@@ -102,7 +106,7 @@ function App() {
         console.log(relation.endoRelation)
     }
 
-    const handlePairsChange = (e: ChangeEvent<HTMLInputElement>) => {
+    function handlePairsChange(e: ChangeEvent<HTMLInputElement>) {
         const regex = /\(.*?\)/gi;
         setInputPairsValue(e.target.value)
 
@@ -115,7 +119,7 @@ function App() {
         })
     }
 
-    const removePair = (i: number) => {
+    function removePair(i: number) {
         relation.pairs.splice(i, 1);
         forceUpdate();
     }
@@ -190,6 +194,20 @@ function App() {
                     <div className="mt-2 flex gap-4 flex-wrap">
                         {
                             relation.invertedRelation.map((pair, i) => {
+                                return (
+                                    <div className="ordered-pair" key={i}>
+                                        ({pair.x}, {pair.y})
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+                </div>
+                <div className="ring-1 ring-gray-200 rounded-sm p-4">
+                    Pares de composição (R◦R)
+                    <div className="mt-2 flex gap-4 flex-wrap">
+                        {
+                            relation.composition.map((pair, i) => {
                                 return (
                                     <div className="ordered-pair" key={i}>
                                         ({pair.x}, {pair.y})
